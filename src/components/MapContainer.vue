@@ -29,10 +29,14 @@ export default {
 	name:"MapComtainer", 
 	components: {},
    	mounted() {
-		   	const getLocationData = async() => {
-				let reverse_geo = axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client\?latitude\=${data.coords.latitude}\&longitude\=${data.coords.longitude}\&localityLanguage\=en`)
-
+		    navigator.geolocation.getCurrentPosition( geolocationCallback, geolocationCallbackFail );  
+			async function geolocationCallbackFail() {
+				console.log("fail")
 			}
+			async function geolocationCallback(position){ //this cant be written as a const so dont change it
+				console.log(position)
+			}
+
 			const returnStoreLocations = async(storeName) => {
 
 			}
