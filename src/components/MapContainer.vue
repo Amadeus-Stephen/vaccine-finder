@@ -29,53 +29,54 @@ export default {
 	name:"MapComtainer", 
 	components: {},
    	mounted() {
-		    navigator.geolocation.getCurrentPosition( geolocationCallback, geolocationCallbackFail );  
-			async function geolocationCallbackFail() {
-				console.log("fail")
-			}
-			async function geolocationCallback(position){ //this cant be written as a const so dont change it
-				console.log(position)
-			}
-
-			const returnStoreLocations = async(storeName) => {
-
-			}
-			const runApp = async() => {
-
-				navigator.geolocation.getCurrentPosition((data)=>{
-					let map = new Map({
-		   				target: this.$refs["map-root"],
-		  	 			layers: [
-			 	  			rasterLayer , vectorLayer
-		  	 			],
-		  	 			view: new View({
-			 	  			zoom:15,
-			 	  			center: fromLonLat([data.coords.longitude, data.coords.latitude]),
-			 	 			constrainResolution:true
-		  	 			}),
-				
-	   				})
-					let pointFeature = new Feature(
-						new Point(transform([data.coords.longitude ,data.coords.latitude ] , 'EPSG:4326' , 'EPSG:3857'))
-					);
-					source.addFeature( pointFeature );
-					console.log(reverse_geo.data)
-				// let stores = axios.get(`https://nominatim.openstreetmap.org/search?q=`)
-				}, 
-				() => {
-					new Map({
-			   			target: this.$refs["map-root"],
-			   			layers: [
-				   			rasterLayer , vectorLayer
-			   			],
-			   			view: new View({
-				   			zoom:0,
-				   			center: fromLonLat([0,0]),
-				  			constrainResolution:true
-			   			})
-		   			})
+		navigator.geolocation.getCurrentPosition(
+			geolocationCallback,
+			geolocationCallbackFail
+		);
+		async function geolocationCallbackFail() {
+			console.log('failed-to-get-locaion');
+			new Map({
+				target: this.$refs['map-root'],
+				layers: [rasterLayer, vectorLayer],
+				view: new View({
+					zoom: 0,
+					center: fromLonLat([0, 0]),
+					constrainResolution: true
 				})
-			}
+			});
+		}
+		async function geolocationCallback(position) {
+			//this cant be written as a const so dont change it
+			new Map({
+				target: this.$refs['map-root'],
+				layers: [rasterLayer, vectorLayer],
+				view: new View({
+					zoom: 15,
+					center: fromLonLat([
+						position.coords.longitude,
+						position.coords.latitude
+					]),
+					constrainResolution: true
+				})
+			});
+			let pointFeature = new Feature(
+				new Point(
+					transform(
+						[position.coords.longitude, position.coords.latitude],
+						'EPSG:4326',
+						'EPSG:3857'
+					)
+				)
+			);
+			source.addFeature(pointFeature);
+		}
+
+		const returnStoreLocations = async (storeName, position) => {
+			let reverseGeo = await axios.get(
+				`https://api.bigdatacloud.net/data/reverse-geocode-client\?latitude\=${position.coords.latitude}\&longitude\=${position.coords.longitude}\&localityLanguage\=en`
+			);
+			let storeLocations = await axios.get(`https://nominatim.openstreetmap.org/search?q=`)
+		};
 	}
 }
 </script>
